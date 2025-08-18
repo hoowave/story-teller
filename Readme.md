@@ -15,7 +15,7 @@
 │   │     └─ response_dto.py             # 응답 dto
 │   └─ service/                          # service 패키지
 │       ├─ service.py                    # 서비스
-│       └─ preprocessor/                 # ← stage1_preprocess.py를 모듈로 분리(Moudul_Project_2에 구축한 모듈)
+│       └─ preprocessor/                 # Stage-1 로그 전처리 모듈
 │       │  ├─ __init__.py                # (패키지 인식용; router export 선택)
 │       │  ├─ schema.py                  # Pydantic 모델: Entities, Event
 │       │  ├─ extractors.py              # iso/safe_ip/extract_entities/infer_hints
