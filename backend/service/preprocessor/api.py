@@ -1,4 +1,4 @@
-# FastAPI router (/ingest): csv/log/txt만 허용, zip 불허
+# FastAPI router (/ingest): csv/log/txt만 허용
 import os
 import csv
 from fastapi import APIRouter, UploadFile, File, HTTPException, Query
@@ -124,10 +124,10 @@ async def ingest(file: UploadFile = File(...), full: int = Query(0)) -> Dict[str
         "ingest_id": ingest_id,
         "format": fmt,
         "count": len(events),
-        "sample": [e.dict() for e in events[:3]],
+        "sample": [e.model_dump() for e in events[:3]],
     }
     if full:
-        payload["events"] = [e.dict() for e in events]
+        payload["events"] = [e.model_dump() for e in events]
     return payload
 
 
@@ -198,8 +198,8 @@ async def ingest_batch(files: List[UploadFile] = File(...), full: int = Query(0)
         "ingest_id": ingest_id,
         "format": "+".join(sorted(formats)) if formats else "unknown",
         "count": len(events),
-        "sample": [e.dict() for e in events[:3]],
+        "sample": [e.model_dump() for e in events[:3]],
     }
     if full:
-        payload["events"] = [e.dict() for e in events]
+        payload["events"] = [e.model_dump() for e in events]
     return payload
