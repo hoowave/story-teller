@@ -3,39 +3,40 @@
 import re
 from ipaddress import ip_address
 from dateutil import parser as dt
+from typing import Optional, Tuple, List
 from .schema import Entities
 
-# IPv4, 사용자, 파일경로, 프로세스 패턴(간이)
 IP_RX   = re.compile(r'\b(?:\d{1,3}\.){3}\d{1,3}\b')
 USER_RX = re.compile(r'user:(\w+)|user\s*=\s*(\w+)|for\s+(\w+)', re.I)
-FILE_RX = re.compile(r'(/[^ \t\n\r]+)')               # 공백 아닌 /path
+FILE_RX = re.compile(r'(/[^ \t\n\r]+)')
 PROC_RX = re.compile(r'(?:exe:|process:)\s*([^\s]+)', re.I)
 
-def iso(s: str) -> str | None:
-    """아무 날짜 문자열을 ISO8601 로 변환(실패 시 None)"""
+def iso(s: str) -> Optional[str]:
     try:
         return dt.parse(s).astimezone().isoformat()
     except Exception:
         return None
 
-def safe_ip(s: str) -> str | None:
-    """ip 문자열 검증(유효하면 그대로 반환)"""
+def safe_ip(s: str) -> Optional[str]:
     try:
         ip_address(s); return s
     except Exception:
         return None
 
 def extract_entities(msg: str) -> Entities:
-    """메시지에서 ip/유저/파일/프로세스 등을 추출"""
     msg = msg or ""
-    ips   = [m for m in IP_RX.findall(msg) if safe_ip(m)]
-    users = [next((g for g in tup if g), None) for tup in USER_RX.findall(msg) if any(tup)]
-    files = [f for f in FILE_RX.findall(msg) if f != '/']
-    procs = [p for p in PROC_RX.findall(msg)]
-    return Entities(ips=ips, users=users, files=files, processes=procs)
+    ips: List[str] = [m for m in IP_RX.findall(msg) if safe_ip(m)]
+    users_raw = [next((g for g in tup if g), None) for tup in USER_RX.findall(msg) if any(tup)]
+    users: List[str] = [u for u in users_raw if u]
+    files: List[str] = [f for f in FILE_RX.findall(msg) if f != '/']
+    procs: List[str] = [p for p in PROC_RX.findall(msg)]
+    # 중복 제거(입력 순서 유지)
+    dedup = lambda xs: list(dict.fromkeys(xs))
+    return Entities(
+        ips=dedup(ips), users=dedup(users), files=dedup(files), processes=dedup(procs)
+    )
 
-def infer_hints(msg: str) -> tuple[str | None, str | None]:
-    """간단한 규칙 기반 이벤트/심각도 힌트"""
+def infer_hints(msg: str) -> Tuple[Optional[str], Optional[str]]:
     m = (msg or "").lower()
     if "failed login" in m or "failed password" in m:
         return "authentication", "warning"
