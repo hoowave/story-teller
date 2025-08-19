@@ -22,6 +22,7 @@ with st.container():
 
 # 입력 확인
 if uploaded_files:
+    st.write("업로드한 파일명:", [file.name for file in uploaded_files])
     st.write("업로드한 파일 수:", len(uploaded_files))
     try:
         # 여러 파일을 서버로 전송
