@@ -1,22 +1,28 @@
-# backend/service/preprocessor/parsers.py
-
+# CSV/텍스트/ZIP 파서: 다양한 소스 필드를 표준 키로 매핑
 import io, csv, json, zipfile
 from typing import List, Dict, Any, Optional
 from .extractors import iso
 
 def _int_or_none(x: Optional[str]) -> Optional[int]:
+    """정수로 변환 가능하면 int, 아니면 None."""
     try:
         return int(x) if x not in (None, "") else None
     except Exception:
         return None
 
 def _lower_map(fieldnames: List[str]) -> Dict[str, str]:
+    """원본 필드명을 소문자 키로 매핑 (케이스 민감도 완화용)."""
     return {k.lower(): k for k in fieldnames}
 
 def _has(fmap: Dict[str, str], *keys) -> bool:
+    """필수 키(대소문자 무시)가 모두 존재하는지 확인."""
     return all(k.lower() in fmap for k in keys)
 
 def _detect_log_type(fieldnames: List[str]) -> str:
+    """
+    CSV 헤더를 기반으로 로그 타입 추정.
+    - firewall/web/waf/proxy/db/auth/dns/edr 를 먼저 시도, 실패 시 'csv' 반환
+    """
     f = _lower_map(fieldnames)
 
     # firewall
@@ -44,27 +50,35 @@ def _detect_log_type(fieldnames: List[str]) -> str:
     if _has(f, "pc", "event"):
         return "edr"
 
-    return "csv"  # fallback
+    return "csv"  # fallback (일반 CSV)
 
 def parse_text(lines: List[str]) -> List[Dict[str, Any]]:
+    """
+    텍스트(.log/.txt) 한 줄당 하나의 레코드로 단순 파싱.
+    - 첫 1~2 토큰을 시각으로 가정하여 ISO로 파싱 시도
+    """
     rows: List[Dict[str, Any]] = []
     for line in lines:
         s = (line or "").strip()
         if not s:
             continue
         parts = s.split()
-        ts = iso(" ".join(parts[:2])) or iso(parts[0])
+        ts = iso(" ".join(parts[:2])) or iso(parts[0])  # "YYYY-MM-DD HH:MM:SS" 또는 "ISO" 단일 토큰
         rows.append({"ts": ts, "msg": s, "raw": s, "log_type": "text"})
     return rows
 
 def parse_csv(text: str) -> List[Dict[str, Any]]:
+    """
+    CSV를 DictReader로 읽고, 로그 타입을 감지한 뒤 표준 키로 변환.
+    공통 표준 키: ts, src_ip, dst_ip, src_port, dst_port, proto, msg, raw(json), log_type, meta
+    """
     rows: List[Dict[str, Any]] = []
     reader = csv.DictReader(io.StringIO(text))
     fieldnames = reader.fieldnames or []
     log_type = _detect_log_type(fieldnames)
 
     for r in reader:
-        meta = dict(r)
+        meta = dict(r)  # 원본 보존
         ts = iso(r.get("ts") or r.get("timestamp") or r.get("time") or r.get("Timestamp") or "")
 
         std: Dict[str, Any] = {
@@ -77,9 +91,8 @@ def parse_csv(text: str) -> List[Dict[str, Any]]:
             "meta": meta,
         }
 
-        # 공통 alias helper
+        # 공통 alias helper (대소문자·공백·표기 흔들림 보정)
         def G(key: str) -> Optional[str]:
-            # 대소문자/공백/대괄호 혼재 방지용
             for k in (key, key.title(), key.upper(), key.lower()):
                 if k in r: return r.get(k)
             return None
@@ -95,7 +108,7 @@ def parse_csv(text: str) -> List[Dict[str, Any]]:
             })
 
         elif log_type == "web":
-            # Case A: Request/Status/User-Agent
+            # Case A: 단일 Request 컬럼(예: "GET /... HTTP/1.1")
             req = G("Request")
             if req is not None:
                 std.update({
@@ -127,13 +140,14 @@ def parse_csv(text: str) -> List[Dict[str, Any]]:
 
         elif log_type == "db":
             std.update({
-                "src_ip": G("Source IP") or None,   # 내부 확산형에는 없음
+                "src_ip": G("Source IP") or None,   # 내부 확산형에는 없을 수 있음
                 "dst_ip": G("DB Host"),
                 "proto": "SQL",
                 "msg": (G("Query") or "").strip(),
             })
 
         elif log_type == "auth":
+            # 호스트/PC 표기 혼용 케이스. 만약 Host가 IP면 dst_ip로 매핑
             host_or_pc = G("Host") or G("PC")
             std.update({
                 "src_ip": G("Source IP"),
@@ -157,6 +171,7 @@ def parse_csv(text: str) -> List[Dict[str, Any]]:
             })
 
         else:
+            # 일반 CSV(필드명이 비교적 표준에 가까운 경우)
             std.update({
                 "src_ip": G("src_ip") or G("Source IP"),
                 "dst_ip": G("dst_ip") or G("dest_ip") or G("Destination IP"),
@@ -170,6 +185,7 @@ def parse_csv(text: str) -> List[Dict[str, Any]]:
     return rows
 
 def re_ip(s: str) -> bool:
+    """문자열이 유효한 IP 형식인지 검사."""
     try:
         import ipaddress
         ipaddress.ip_address(s); return True
@@ -177,7 +193,10 @@ def re_ip(s: str) -> bool:
         return False
 
 def parse_zip(raw_bytes: bytes, zip_filename: str) -> List[Dict[str, Any]]:
-    """ZIP 내부 모든 CSV를 파싱하여 합칩니다. meta.scenario/file 부가."""
+    """
+    ZIP 내 모든 CSV를 파싱하여 합치고, meta에 시나리오/파일명을 추가.
+    - 반환: 표준화된 dict 행 리스트
+    """
     out: List[Dict[str, Any]] = []
     scenario = zip_filename.rsplit(".", 1)[0]
     with zipfile.ZipFile(io.BytesIO(raw_bytes)) as z:
