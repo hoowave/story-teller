@@ -1,12 +1,18 @@
-from facade.open_ai_agent import OpenAIAgent
-from interfaces.dto.request_dto import RequestDto
-import time
-import os
+from facade.gemini_agent import GeminiAgent
+from facade.log_cluster import LogCluster
 
 class Service:
     def __init__(self):
-        self.__open_ai_agent = OpenAIAgent()
-        self.__df = None
+        self.__log_cluster = LogCluster()
+        self.__gemini_agent = GeminiAgent()
 
-    def test(self):
-        return "Test API is working!"
+
+    def upload(self, files):
+        for file in files:
+            print(f"Uploaded file: {file.filename}")
+        return "Files uploaded completed."
+
+
+    def clustering(self):
+        self.__log_cluster.analyze()
+        return "Clustering analysis completed."
