@@ -1,8 +1,10 @@
 # story-teller team project!!!
 
-### 1. Front => Streamlit
-### 2. Back => FastAPI
-- 디렉터리 구조
+## 1. Front => Streamlit
+---
+## 2. Back => FastAPI
+---
+### 디렉터리 구조
 ```
 story-teller/
 │
@@ -58,6 +60,7 @@ story-teller/
 ├── .gitignore               # Git 무시 파일 설정
 └── Readme.md                # 프로젝트 설명 문서
 ```
+---
 ### /backend/service/preprocessor/main.py 실행 방법
 ```
 python -m backend.service.preprocessor.main --input <input_path> --full --save-json <output_path>
