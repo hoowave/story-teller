@@ -24,6 +24,10 @@ with st.container():
 if uploaded_files:
     st.write("업로드한 파일명:", [file.name for file in uploaded_files])
     st.write("업로드한 파일 수:", len(uploaded_files))
+    
+    # 분석 시작 안내
+    analysis_msg = st.info("분석 중입니다. 잠시 기다려주세요...")
+
     try:
         # 여러 파일을 서버로 전송
         files = [("files", (file.name, file.getvalue())) for file in uploaded_files]
@@ -48,5 +52,7 @@ if uploaded_files:
 
     except Exception as e:
         st.error(f"파일 처리 중 오류 발생: {e}")
+    finally:
+        analysis_msg.empty()
 else:
     st.info("로그 파일을 업로드해야 분석을 시작할 수 있습니다.")

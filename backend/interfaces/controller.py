@@ -19,13 +19,5 @@ def upload_files(
     files: List[UploadFile] = File(...),
     service: Service = Depends(get_service)
 ):
-    service.upload(files)
-    return "Files upload API is working!"
-
-# 테스트용 API
-@router.get("/api/test")
-def graph(
-    service: Service = Depends(get_service)
-):
-    service.test()
-    return "test API is working!"
+    response = service.upload(files)
+    return response

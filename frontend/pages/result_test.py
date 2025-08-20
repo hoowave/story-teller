@@ -5,19 +5,26 @@ import plotly.graph_objects as go
 import altair as alt
 
 st.set_page_config(page_title="보안 로그 클러스터링 분석", layout="wide")
-st.title("🔎로그 분석 결과")
-# 세션 스테이트에서 JSON 불러오기
-json1 = st.session_state.get("json1", {})
-json2 = st.session_state.get("json2", {})
+st.title("로그 분석 결과")
 
-if json1 and json2:
-    result1 = json1.get("analysis_result",{})
-    result2 = json2.get("LLM 응답",[{}])[0]
+# JSON 업로드 (test용)
+uploaded_files = st.file_uploader(
+    "분석 JSON 파일 업로드", 
+    type="json", 
+    accept_multiple_files=True)
+
+
+
+
+if uploaded_files and len(uploaded_files) == 2:
+    json1 = json.load(uploaded_files[0])
+    json2 = json.load(uploaded_files[1])
+    result1 = json1.get("analysis_result", {})
+    result2 = json2.get("LLM 응답", [{}])[0]
 
     # 탭 구성
     tabs = st.tabs(["공격 시나리오 & 권고사항","종합 위험도", "상세 분석 결과"])
 
-    # 탭 1: 공격 시나리오 & 권고사항
     # 탭 1: 공격 시나리오 & 권고사항
     with tabs[0]:
         st.header("⚠️ 공격 시나리오 & 권고사항")
@@ -242,5 +249,4 @@ if json1 and json2:
                     df_file = pd.DataFrame(high_risk_records)
                     st.dataframe(df_file, use_container_width=True)
                 else:
-                    st.info("분석 JSON 파일을 찾을 수 없습니다.")
-else: st.warning("분석할 로그파일을 먼저 업로드해 주세요")
+                    st.info("먼저 분석 JSON 파일을 업로드하세요.")

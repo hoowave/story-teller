@@ -1,5 +1,6 @@
-import tempfile
+import json
 
+from pathlib import Path
 from facade.gemini_agent import GeminiAgent
 from facade.log_cluster import LogCluster
 from facade.log_cluster_test import Clustering
@@ -33,7 +34,23 @@ class Service:
         ## Step 5 위험도 평가 결과를 기반으로 스토리 생성
         self.__gemini_agent.request()
 
-        return "Action completed."
+        ## Step 7 결과 반환
+        return self.getResponseData()
     
-    def test(self):
-        self.__gemini_agent.request()
+    ## 반환 데이터를 가져오는 함수
+    def getResponseData(self):
+        """현재 세션의 JSON 데이터를 반환"""
+        project_root = Path(__file__).parent.parent
+        json1_path = project_root / "facade" / "data" / "cluster_output_1.json"
+        json2_path = project_root / "facade" / "data" / "story_output.json"
+
+        with open(json1_path, "r", encoding="utf-8") as f:
+            json1 = json.load(f)
+
+        with open(json2_path, "r", encoding="utf-8") as f:
+            json2 = json.load(f)
+
+        return {
+            "json1": json1,
+            "json2": json2
+        }
