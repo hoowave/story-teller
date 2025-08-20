@@ -20,7 +20,7 @@ with st.container():
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-# 입력 확인
+#입력 확인
 if uploaded_files:
     st.write("업로드한 파일명:", [file.name for file in uploaded_files])
     st.write("업로드한 파일 수:", len(uploaded_files))
@@ -33,6 +33,11 @@ if uploaded_files:
 
         if response.status_code == 200:
             st.success("파일 업로드 및 서버 전송 성공")
+            server_data = response.json()
+            # 서버에서 json1(클러스터링 시각화용 json), json2(llm 기반 스토리텔링 json)을 반환받는다고 가정
+            st.session_state["json1"] = server_data.get("json1",{})
+            st.session_state["json2"] = server_data.get("json2",{}) 
+            st.info("업로드 완료. 분석 결과를 확인하세요.")
             try:
                 result = response.json()
                 st.json(result)
