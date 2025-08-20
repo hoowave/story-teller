@@ -8,7 +8,7 @@ story-teller/
 │
 ├── backend/                                      # 백엔드 서버 코드
 │   ├── .env                                      # 환경 변수 설정 (API 키, DB 연결 정보 등)
-│   ├─  ─ main.py                                 # FastAPI 애플리케이션 진입점
+│   ├── main.py                                   # FastAPI 애플리케이션 진입점
 │   │
 │   ├── facade/                                   # 외부 서비스 연동 추상화 계층
 │   │   └── open_ai_agent.py                      # OpenAI API 연동 및 프롬프트 관리
@@ -24,6 +24,7 @@ story-teller/
 │       │
 │       ├── anomaly/                              # 이상 탐지 모듈
 │       │   ├── realtime_detector.py              # 실시간 이상 탐지 로직
+│       │   ├── realtime_cluster_engine.py        # 새로 추가: 실시간 클러스터링 엔진
 │       │   └── router.py                         # 이상 탐지 API 라우터
 │       │
 │       └── preprocessor/                         # 로그 전처리 모듈
