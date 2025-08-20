@@ -79,7 +79,7 @@ def _rows_from_file(name: str, raw_bytes: bytes) -> (List[Dict[str, Any]], str):
 
 
 @router.post("/ingest")
-async def ingest(file: UploadFile = File(...), full: int = Query(0)) -> Dict[str, Any]:
+async def ingest(file: UploadFile = File(), full: int = Query(0)) -> Dict[str, Any]:
     """
     단일 파일 업로드 전처리 엔드포인트.
     - 입력: 업로드 파일(.csv/.log/.txt), 쿼리 full(0|1)
@@ -165,7 +165,7 @@ async def ingest(file: UploadFile = File(...), full: int = Query(0)) -> Dict[str
 
 
 @router.post("/ingest/batch")
-async def ingest_batch(files: List[UploadFile] = File(...), full: int = Query(0)) -> Dict[str, Any]:
+async def ingest_batch(files: List[UploadFile] = File(), full: int = Query(0)) -> Dict[str, Any]:
     """
     여러 파일 일괄 처리 엔드포인트.
     - 허용: .csv/.log/.txt
