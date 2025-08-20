@@ -1,30 +1,10 @@
-"""
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-import interfaces.controller as Controller
-
-app = FastAPI()
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-app.include_router(Controller.router)
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
-"""
-
 # 수정본
+# backend/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import interfaces.controller as Controller
-from service.preprocessor.api import router as preproc_router   # ★ 추가
+from service.preprocessor.api import router as preproc_router   # 기존
+from service.anomaly.router import router as anomaly_router     # 추가
 
 app = FastAPI()
 
@@ -37,7 +17,8 @@ app.add_middleware(
 )
 
 app.include_router(Controller.router)
-app.include_router(preproc_router, prefix="/v1")  # ★ /v1/ingest 로 노출
+app.include_router(preproc_router, prefix="/v1")   # /v1/ingest
+app.include_router(anomaly_router, prefix="/anomaly")  # /anomaly/detect, /anomaly/detect/unified, /anomaly/stream...
 
 if __name__ == "__main__":
     import uvicorn

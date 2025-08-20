@@ -180,22 +180,32 @@ class EnsembleDetector:
         return final_score, reasons, details
 
 # ---------- 이벤트 → 키 추출 ----------
-def build_keys_from_event(event: dict) -> List[str]:
-    ent = event.get("extracted_entities", {})
+def build_keys_from_event(event) -> List[str]:
+    """
+    dict(preprocessor output) 또는 models.SecurityEvent 모두 지원.
+    """
+    # SecurityEvent 객체
+    if hasattr(event, "entities") and isinstance(event.entities, dict):
+        ent = event.entities
+        src = (ent.get("ips") or ["unknown"])[0]
+        user = (ent.get("users") or ["unknown"])[0]
+        etype = ent.get("event_type") or "unknown"
+        dst = ent.get("destination_ip") or ent.get("dst_ip") or ["unknown"]
+        if isinstance(dst, list):
+            dst = dst[0]
+        pair = f"{src}->{dst}"
+        return [f"src:{src}", f"user:{user}", f"type:{etype}", f"flow:{pair}"]
+
+    # dict 객체 (기존)
+    ent = event.get("extracted_entities", {}) or {}
     src = (ent.get("ips") or ["unknown"])[0]
     user = (ent.get("users") or ["unknown"])[0]
     etype = ent.get("event_type") or "unknown"
-    # 필요하면 dst_ip, file path 등 더 추가
-    dst = (ent.get("dst_ip") or (ent.get("destination_ip") or ["unknown"]))  # 호환
+    dst = (ent.get("dst_ip") or ent.get("destination_ip") or ["unknown"])
     if isinstance(dst, list):
         dst = dst[0]
     pair = f"{src}->{dst}"
-    return [
-        f"src:{src}",
-        f"user:{user}",
-        f"type:{etype}",
-        f"flow:{pair}",
-    ]
+    return [f"src:{src}", f"user:{user}", f"type:{etype}", f"flow:{pair}"]
 
 # ---------- 퍼사드 ----------
 class RealtimeAnomalyEngine:
