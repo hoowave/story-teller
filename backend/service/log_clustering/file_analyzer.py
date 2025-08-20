@@ -3,20 +3,14 @@
 # file_analyzer.py
 from typing import List, Dict, Any
 from models import SecurityEvent, EventType
+from config import DEFAULT_CONFIG
 
 class FileAnalyzer:
     """파일 접근 패턴 분석기"""
     
-    def __init__(self):
-        self.sensitive_files = {
-            '/var/log/': 0.8,
-            '/etc/': 0.9,
-            '/root/': 1.0,
-            '/home/': 0.6,
-            'passwd': 1.0,
-            'shadow': 1.0,
-            '.config': 0.7
-        }
+    def __init__(self, config=None):
+        self.config = config or DEFAULT_CONFIG
+        self.sensitive_files = self.config.sensitive_files
     
     def calculate_file_sensitivity(self, events: List[SecurityEvent]) -> float:
         """파일 민감도 지수 계산"""

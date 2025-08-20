@@ -5,15 +5,17 @@ from typing import List, Dict, Any
 from collections import Counter
 import ipaddress
 from models import SecurityEvent
+from config import DEFAULT_CONFIG
 
 class IPAnalyzer:
     """IP 기반 공격 패턴 분석기"""
     
-    def __init__(self):
+    def __init__(self, config=None):
+        self.config = config or DEFAULT_CONFIG
+        # 하드코딩된 부분을 config에서 가져오기
         self.internal_networks = [
-            ipaddress.IPv4Network('10.0.0.0/8'),
-            ipaddress.IPv4Network('172.16.0.0/12'),
-            ipaddress.IPv4Network('192.168.0.0/16')
+            ipaddress.IPv4Network(network) 
+            for network in self.config.internal_networks
         ]
     
     def calculate_ip_diversification(self, events: List[SecurityEvent]) -> float:

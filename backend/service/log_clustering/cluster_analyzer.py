@@ -7,23 +7,22 @@ from time_analyzer import TimeAnalyzer
 from ip_analyzer import IPAnalyzer
 from user_analyzer import UserAnalyzer
 from file_analyzer import FileAnalyzer
+from config import DEFAULT_CONFIG
 
 class ClusterAnalyzer:
     """종합 클러스터링 분석기"""
     
-    def __init__(self):
-        self.time_analyzer = TimeAnalyzer()
-        self.ip_analyzer = IPAnalyzer()
-        self.user_analyzer = UserAnalyzer()
-        self.file_analyzer = FileAnalyzer()
+    def __init__(self, config=None):
+        self.config = config or DEFAULT_CONFIG
         
-        # 가중치 설정
-        self.weights = {
-            'time': 0.25,
-            'ip': 0.20,
-            'user': 0.30,
-            'file': 0.25
-        }
+        # 모든 분석기에 동일한 config 전달
+        self.time_analyzer = TimeAnalyzer(self.config)
+        self.ip_analyzer = IPAnalyzer(self.config)
+        self.user_analyzer = UserAnalyzer(self.config)
+        self.file_analyzer = FileAnalyzer(self.config)
+        
+        # 가중치를 config에서 가져오기
+        self.weights = self.config.metric_weights
     
     def analyze_cluster(self, events: List[SecurityEvent]) -> ClusterMetrics:
         """전체 클러스터 분석 수행"""

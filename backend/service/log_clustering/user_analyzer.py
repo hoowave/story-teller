@@ -8,13 +8,17 @@
 from typing import List, Dict, Any
 from collections import defaultdict
 from models import SecurityEvent, EventType
+from config import DEFAULT_CONFIG
+
+
 
 class UserAnalyzer:
     """사용자 행동 패턴 분석기"""
     
-    def __init__(self):
-        self.admin_users = {'admin', 'root', 'administrator'}
-        self.sensitive_files = {'/var/log/', '/etc/', '/root/', '/home/'}
+    def __init__(self, config=None):
+        self.config = config or DEFAULT_CONFIG
+        self.admin_users = set(self.config.admin_users)
+        self.sensitive_files = set(self.config.sensitive_files.keys())
     
     def calculate_user_anomaly(self, events: List[SecurityEvent]) -> float:
         """사용자 이상 행동 지수 계산"""

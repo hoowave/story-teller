@@ -12,13 +12,15 @@ from typing import List, Dict, Any
 from datetime import timedelta
 import statistics
 from models import SecurityEvent
+from config import DEFAULT_CONFIG
 
 class TimeAnalyzer:
     """시간 기반 공격 패턴 분석기"""
     
-    def __init__(self):
-        self.time_window_threshold = 300  # 5분 (초 단위)
-    
+    def __init__(self, config=None):
+        self.config = config or DEFAULT_CONFIG
+        self.time_window_threshold = self.config.time_window_threshold
+
     def calculate_time_concentration(self, events: List[SecurityEvent]) -> float:
         """시간 집중도 계산 (0.0 ~ 1.0)"""
         if len(events) < 2:
@@ -56,8 +58,8 @@ class TimeAnalyzer:
         # 이벤트 밀도 계산 (이벤트/초)
         event_density = len(events) / total_duration
         
-        # 버스트 임계값: 분당 2개 이상 이벤트
-        burst_threshold = 2 / 60
+        # 버스트 임계값
+        burst_threshold = self.config.burst_threshold
         burst_detected = event_density > burst_threshold
         burst_intensity = min(1.0, event_density / burst_threshold)
         
