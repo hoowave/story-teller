@@ -1,0 +1,63 @@
+{
+  "policy_version": "v0.3",
+  "groups": [
+    {
+      "cluster_id": "a822e5f197bd",
+      "risk_score": 5.28,
+      "risk_level": "Medium",
+      "factors": {
+        "type": 6,
+        "severity": 2,
+        "volume": 4.0,
+        "recency": 10.0,
+        "asset": 6,
+        "confidence_adj": 1.2
+      },
+      "group_context": {
+        "key": {
+          "user": "johndoe",
+          "src_ip": "192.168.1.2",
+          "dst_ip": "10.0.0.2",
+          "event_type_hint": "file_accessed"
+        },
+        "count": 1,
+        "first_seen": "2023-01-01T12:01:00+09:00",
+        "last_seen": "2023-01-01T12:01:00+09:00",
+        "sample_msgs": [
+          "File access: /var/log/access.log by user:johndoe"
+        ]
+      },
+      "explain": "file_accessed 관련 이벤트 1건. 최근성10.0/자산6/확신도보정1.2 반영",
+      "policy_version": "v0.3"
+    },
+    {
+      "cluster_id": "851465754350",
+      "risk_score": 4.08,
+      "risk_level": "Low",
+      "factors": {
+        "type": 5,
+        "severity": 2,
+        "volume": 4.0,
+        "recency": 2.0,
+        "asset": 6,
+        "confidence_adj": 1.2
+      },
+      "group_context": {
+        "key": {
+          "user": "admin",
+          "src_ip": "192.168.1.1",
+          "dst_ip": "10.0.0.1",
+          "event_type_hint": "authentication"
+        },
+        "count": 1,
+        "first_seen": "2023-01-01T12:00:00+09:00",
+        "last_seen": "2023-01-01T12:00:00+09:00",
+        "sample_msgs": [
+          "User admin logged in from 192.168.1.1"
+        ]
+      },
+      "explain": "authentication 관련 이벤트 1건. 최근성2.0/자산6/확신도보정1.2 반영",
+      "policy_version": "v0.3"
+    }
+  ]
+}
