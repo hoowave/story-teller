@@ -5,13 +5,12 @@ from pathlib import Path
 
 class RiskAgent:
     def __init__(self):
-        project_root = Path(__file__).parent.parent
-        self.__DEFAULT_IN = project_root / "facade" / "risk" / "sample_log.txt"
-        self.__DEFAULT_OUT = project_root / "facade"/ "risk" / "risk_output.json"
+        pass
 
     def run(self):
-        input_path = self.__DEFAULT_IN
-        out_path = self.__DEFAULT_OUT
+        project_root = Path(__file__).parent.parent
+        input_path = project_root / "facade" / "data" / "processor_output.json"
+        out_path = project_root / "facade" / "data" / "risk_output.json"
 
         events = load_preprocessed_events(input_path)
         out = main_from_events(events)

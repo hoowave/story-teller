@@ -6,8 +6,8 @@ import json
 import os
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-from facade.log_clustering.models import SecurityEvent
-from facade.log_clustering.utils import LogProcessor
+from facade.clustering.models import SecurityEvent
+from facade.clustering.utils import LogProcessor
 
 class DataLoader:
     """다양한 소스에서 보안 로그 데이터를 로드하는 클래스"""

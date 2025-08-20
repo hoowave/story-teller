@@ -18,4 +18,3 @@ if __name__ == "__main__":
     in_path = sys.argv[1] if len(sys.argv) >= 2 else str(DEFAULT_IN)
     out_path = sys.argv[2] if len(sys.argv) >= 3 else str(DEFAULT_OUT)
     run(in_path, out_path)
-

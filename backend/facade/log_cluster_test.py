@@ -2,16 +2,20 @@ import json
 from pathlib import Path
 import os
 
-from facade.log_clustering.data_loader import DataLoader
-from facade.log_clustering.cluster_analyzer import ClusterAnalyzer
+from facade.clustering.data_loader import DataLoader
+from facade.clustering.cluster_analyzer import ClusterAnalyzer
 
-class LogCluster:
+class Clustering:
     def __init__(self):
         self.__loader = DataLoader()
         self.__cluster_analyzer = ClusterAnalyzer()
 
     def analyze(self):
         __events = self.__loader.load_sample_data()
+        """메인 실행 함수"""
+        print("=== 보안 로그 클러스터링 분석 시스템 ===")
+        print()
+        
         # 기본 클러스터 분석
         print("클러스터 분석 결과:")
         print("-" * 50)
@@ -75,6 +79,8 @@ class LogCluster:
         
         print("분석 완료!")
         
+
+
         # JSON 형태로 결과 출력 (API 응답 시뮬레이션)
         print()
         print("JSON 응답 형태:")
@@ -99,7 +105,7 @@ class LogCluster:
         }
         
         print(json.dumps(result_json, indent=2, ensure_ascii=False, default=str))
-        output_path = os.path.join(os.path.dirname(__file__), "data", "cluster_output_1.json")
+        output_path = os.path.join(os.path.dirname(__file__), "data", "cluster_output_2.json")
         # JSON 저장 추가
         if output_path:
             save_file = Path(output_path)
@@ -108,9 +114,10 @@ class LogCluster:
                 encoding="utf-8"
             )
             print(f"✅ 분석 결과 JSON 저장 완료: {save_file}")
-
+            
     def generate_recommendations(self,metrics):
         """위험도에 따른 권장사항 생성"""
+        from facade.clustering.models import ClusterMetrics
         
         recommendations = []
         
