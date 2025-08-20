@@ -7,10 +7,10 @@
 
 """API 서비스 모듈 - FastAPI와 연동을 위한 서비스 레이어"""
 from typing import List, Dict, Any, Optional
-from models import SecurityEvent, ClusterMetrics
-from cluster_analyzer import ClusterAnalyzer
-from data_loader import DataLoader
-from utils import ReportGenerator
+from facade.log_clustering.models import SecurityEvent, ClusterMetrics
+from facade.log_clustering.cluster_analyzer import ClusterAnalyzer
+from facade.log_clustering.data_loader import DataLoader
+from facade.log_clustering.utils import ReportGenerator
 import json
 
 class SecurityAnalysisService:

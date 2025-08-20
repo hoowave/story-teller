@@ -32,6 +32,21 @@ class AnalysisConfig:
     orthogonality_bonus: float = 0.1         # 서로 다른 축 3개↑ 동시 히트 시 보너스
     parsing_confidence_floor: float = 0.6    # 평균 파싱 신뢰도 < floor면 감산
 
+    # 인증 전용
+    auth_burst_window_sec: int = 120            # 2분 창
+    auth_fail_burst_threshold: int = 8          # 동일 사용자/동일 IP 실패 N회
+    auth_spray_user_threshold: int = 5          # 한 IP가 여러 사용자 실패 N명 이상
+    impossible_travel_kmph: int = 900           # 이동속도 기준(환경 맞게 조정)
+
+    # DB/유출
+    db_row_threshold: int = 10000               # 대량 SELECT/덤프 기준
+    db_sensitive_names: Tuple[str, ...] = ("user", "credential", "passwd", "pii", "card", "dump")
+    exfil_bytes_threshold: int = 50 * 1024 * 1024  # 50MB/세션 (환경에 맞게)
+
+    # 시퀀스 윈도우
+    sequence_window_min: int = 30               # 30분 내 연쇄면 같은 공격 체인으로 간주
+
+
     def __post_init__(self):
         if self.internal_networks is None:
             self.internal_networks = ['10.0.0.0/8','172.16.0.0/12','192.168.0.0/16']

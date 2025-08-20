@@ -4,9 +4,10 @@
 
 import json
 from typing import List, Dict, Any
-from models import SecurityEvent
-from cluster_analyzer import ClusterAnalyzer
-from data_loader import DataLoader
+from facade.log_clustering.models import SecurityEvent
+from facade.log_clustering.cluster_analyzer import ClusterAnalyzer
+from facade.log_clustering.data_loader import DataLoader
+
 
 
 def main():
@@ -85,6 +86,8 @@ def main():
     
     print("분석 완료!")
     
+
+
     # JSON 형태로 결과 출력 (API 응답 시뮬레이션)
     print()
     print("JSON 응답 형태:")

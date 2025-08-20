@@ -23,9 +23,9 @@ def upload_files(
     return "Files upload API is working!"
 
 # 테스트용 API
-@router.get("/api/risk")
+@router.get("/api/test")
 def graph(
     service: Service = Depends(get_service)
 ):
-    service.risk()
+    service.test()
     return "test API is working!"

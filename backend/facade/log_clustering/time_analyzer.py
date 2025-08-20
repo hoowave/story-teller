@@ -14,6 +14,7 @@ import statistics
 from facade.log_clustering.models import SecurityEvent
 from facade.log_clustering.config import DEFAULT_CONFIG
 
+
 class TimeAnalyzer:
     """시간 기반 공격 패턴 분석기"""
     

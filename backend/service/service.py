@@ -23,14 +23,17 @@ class Service:
         ## 이 부분에서 클러스터링을 두번째 방법으로 진행합니다.
         ## 첫번째 방법으로 하고자 하시면 아래를 주석처리하고 self.__log_cluster.analyze() 를 사용해주세요.
         
-        self.__clustering.analyze()
-        # self.__log_cluster.analyze()
-        
+        self.__log_cluster.analyze()
+        # 아래 두번째 클러스터링은 에러 발생!
+        # self.__clustering.analyze()
 
         ## Step 4 클러스터링 결과를 기반으로 위험도 평가
         self.__risk_agent.run()
 
         ## Step 5 위험도 평가 결과를 기반으로 스토리 생성
-        ## TODO : Implement the story generation logic
+        self.__gemini_agent.request()
 
         return "Action completed."
+    
+    def test(self):
+        self.__gemini_agent.request()

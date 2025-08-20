@@ -67,15 +67,6 @@ class ClusterAnalyzer:
     def get_detailed_analysis(self, events: List[SecurityEvent]) -> Dict[str, Any]:
         """상세 분석 결과 반환"""
         time_analysis = self.time_analyzer.detect_burst_pattern(events)
-
-        # total_duration 계산 추가
-        timestamps = [event.timestamp for event in events if hasattr(event, "timestamp")]
-        timestamps.sort()
-        if len(timestamps) > 1:
-            time_analysis["total_duration"] = (timestamps[-1] - timestamps[0]).total_seconds()
-        else:
-            time_analysis["total_duration"] = 0.0
-
         ip_analysis = self.ip_analyzer.analyze_network_movement(events)
         user_analysis = self.user_analyzer.detect_privilege_escalation(events)
         file_analysis = self.file_analyzer.analyze_data_exfiltration_risk(events)

@@ -4,7 +4,7 @@ import json
 from typing import List, Dict, Any
 from datetime import datetime
 import ipaddress
-from facade.clustering.models import SecurityEvent, ClusterMetrics
+from facade.log_clustering.models import SecurityEvent, ClusterMetrics
 
 class LogProcessor:
     @staticmethod

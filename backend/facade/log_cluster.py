@@ -75,6 +75,8 @@ class LogCluster:
         
         print("분석 완료!")
         
+
+
         # JSON 형태로 결과 출력 (API 응답 시뮬레이션)
         print()
         print("JSON 응답 형태:")
@@ -109,8 +111,9 @@ class LogCluster:
             )
             print(f"✅ 분석 결과 JSON 저장 완료: {save_file}")
 
-    def generate_recommendations(self,metrics):
+    def generate_recommendations(self, metrics):
         """위험도에 따른 권장사항 생성"""
+        from facade.log_clustering.models import ClusterMetrics
         
         recommendations = []
         

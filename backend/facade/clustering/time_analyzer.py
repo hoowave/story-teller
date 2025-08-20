@@ -1,8 +1,8 @@
 # time_analyzer.py (drop-in 교체)
 
 from typing import List, Dict, Any
-from facade.clustering.models import SecurityEvent
-from facade.clustering.config import DEFAULT_CONFIG
+from facade.log_clustering.models import SecurityEvent
+from facade.log_clustering.config import DEFAULT_CONFIG
 import statistics
 
 class TimeAnalyzer:
