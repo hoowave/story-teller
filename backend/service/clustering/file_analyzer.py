@@ -60,13 +60,27 @@ class FileAnalyzer:
         if any(((e.entities.get('users') or [""])[0]) in self.service_accounts for e in events):
             risk = max(0.0, risk - 0.1)
 
+        # 민감 파일 정보 수집
+        high_risk_files = []
+        for e in file_events:
+            for fp in e.entities.get("files", []) or []:
+                sens = self._get_file_sensitivity(fp)
+                if sens >= 0.7:  # 민감도 높은 파일만 추림
+                    high_risk_files.append({
+                        "file": fp,
+                        "sensitivity": sens,
+                        "user": (e.entities.get("users") or ["?"])[0]
+                    })
+
         return {
             "exfiltration_risk_score": min(1.0, risk),
             "access_patterns": patterns,
             "total_file_accesses": len(file_events),
             "db_heavy_objects": heavy_db,
-            "total_bytes_out": total_bytes_out
+            "total_bytes_out": total_bytes_out,
+            "high_risk_files": high_risk_files
         }
+        
 
     # --- 내부 유틸 ---
 
