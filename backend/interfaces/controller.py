@@ -23,9 +23,9 @@ def upload_files(
     return "Files upload API is working!"
 
 # 테스트용 API
-@router.get("/api/clustering")
+@router.get("/api/risk")
 def graph(
     service: Service = Depends(get_service)
 ):
-    service.clustering()
-    return "Clustering API is working!"
+    service.risk()
+    return "test API is working!"
