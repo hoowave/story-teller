@@ -1,4 +1,5 @@
 # FastAPI router (/ingest): csv/log/txt만 허용
+import io, zipfile
 import os
 import csv
 from fastapi import APIRouter, UploadFile, File, HTTPException, Query
@@ -237,3 +238,91 @@ async def ingest_batch(files: List[UploadFile] = File(), full: int = Query(0)) -
     if full:
         payload["events"] = [e.model_dump() for e in events]
     return payload
+
+@router.post("/ingest/zip")
+async def ingest_zip(file: UploadFile = File(), full: int = Query(0)) -> Dict[str, Any]:
+    if not file or not file.filename or not file.filename.lower().endswith(".zip"):
+        raise HTTPException(status_code=415, detail="Only .zip is accepted here")
+
+    data = await file.read()
+    try:
+        zf = zipfile.ZipFile(io.BytesIO(data))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Bad zip: {e}")
+
+    ingest_id = str(uuid.uuid4())
+    events: List[Event] = []
+    formats = set()
+
+    for name in zf.namelist():
+        if name.endswith("/"):
+            continue
+        ext = _ext(name)
+        if ext not in ALLOWED_EXTS:
+            # ZIP 안에서 허용확장자만 처리
+            continue
+
+        raw_bytes = zf.read(name)
+        try:
+            rows, fmt = _rows_from_file(name, raw_bytes)
+            formats.add(fmt)
+        except Exception:
+            continue
+
+        for r in rows:
+            if not r.get("ts"):
+                continue
+            msg = r.get("msg") or r.get("raw", "")
+            ents = extract_entities(msg)
+            for ipk in ("src_ip", "dst_ip"):
+                v = r.get(ipk)
+                if v and v not in ents.ips:
+                    ents.ips.append(v)
+
+            log_type = r.get("log_type")
+            meta = r.get("meta") if isinstance(r.get("meta"), dict) else {}
+            meta.setdefault("file", name)
+
+            etype, sev = infer_hints(msg, log_type=log_type, meta=meta)
+
+            events.append(
+                Event(
+                    ingest_id=ingest_id,
+                    ts=r["ts"],
+                    source_type=log_type,
+                    src_ip=r.get("src_ip"),
+                    dst_ip=r.get("dst_ip"),
+                    src_port=r.get("src_port"),
+                    dst_port=r.get("dst_port"),
+                    proto=r.get("proto"),
+                    msg=msg,
+                    event_type_hint=etype,
+                    severity_hint=sev,
+                    entities=ents,
+                    raw=r.get("raw", ""),
+                    meta=meta,
+                    parsing_confidence=0.95 if (etype or ents.ips or ents.users or ents.processes) else 0.78,
+                )
+            )
+
+    payload: Dict[str, Any] = {
+        "ingest_id": ingest_id,
+        "format": "+".join(sorted(formats)) if formats else "unknown",
+        "count": len(events),
+        "sample": [e.model_dump() for e in events[:3]],
+    }
+    if full:
+        payload["events"] = [e.model_dump() for e in events]
+    return payload
+
+"""테스트를 위한 서버 실행
+if __name__ == "__main__":
+
+    import uvicorn
+    from fastapi import FastAPI
+
+    app = FastAPI(title="Preprocessor API (standalone)")
+    app.include_router(router)
+
+    uvicorn.run(app, host="127.0.0.1", port=8000)
+"""

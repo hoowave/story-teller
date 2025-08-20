@@ -30,3 +30,10 @@
 ├── README.md
 └── requirements.txt
 ```
+### /backend/service/preprocessor/main.py 실행 방법
+```
+python -m backend.service.preprocessor.main --input <input_path> --full --save-json <output_path>
+
+ex. python -m backend.service.preprocessor.main --input "backend\service\preprocessor\scenario.zip" --full --save-json "out"
+    python -m backend.service.preprocessor.main --input "backend\service\preprocessor\scenario\External_Intrusion_Type\auth_log.csv" --full --save-json "auth_log_out"
+```
