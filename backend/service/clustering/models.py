@@ -78,7 +78,7 @@ class SecurityEvent:
         ents = data.get('entities') or {}
         for k in ['ips','users','files','processes','domains']:
             ents.setdefault(k, [])
-        for k in ['obj_name','row_count','bytes_out','status','asn','geo','ua','session_id']:
+        for k in ['obj_name','row_count','bytes_out','status','asn','geo','ua','session_id','blocked']:
             ents.setdefault(k, None)
 
         return cls(
@@ -94,7 +94,6 @@ class SecurityEvent:
             parsing_confidence=float(data.get('parsing_confidence', 1.0)),
         )
 
-# ← cluster_analyzer가 기대하는 시그니처(8개 필드)를 기본으로 정의
 @dataclass
 class ClusterMetrics:
     time_concentration: float

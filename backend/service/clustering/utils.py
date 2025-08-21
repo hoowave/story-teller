@@ -49,7 +49,7 @@ class LogProcessor:
                 print(f"필수 필드 누락: {k}")
                 return False
 
-        # 시간: TZ-aware로 표준화, 미래 이벤트 제외
+        # 시간: TZ-aware 표준화, 미래 이벤트 제외
         try:
             ts_utc = LogProcessor._parse_iso_aware(event_data['ts'])
             if ts_utc > datetime.now(timezone.utc):
