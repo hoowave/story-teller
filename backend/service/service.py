@@ -18,7 +18,8 @@ class Service:
     ## Step 1 사용자에게 로그 파일 업로드 전달받음
     def upload(self, files):
         ## Step 2 업로드된 로그 파일 데이터 전처리
-        self.__processor_agent.run_preprocessor_from_files(files, full=True, save_json="facade/data/processor_output.json")
+        # 발표를 위한 임시 파일 대체
+        # self.__processor_agent.run_preprocessor_from_files(files, full=True, save_json="facade/data/processor_output.json")
         
         ## Step 3 전처리된 로그 데이터를 기반으로 클러스터링
         ## 이 부분에서 클러스터링을 두번째 방법으로 진행합니다.

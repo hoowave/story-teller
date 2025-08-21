@@ -129,10 +129,10 @@ if json1 and json2:
         #priority_level_desc = "위 지표들을 종합하여 사건 대응 우선순위를 표시합니다. HIGH, MEDIUM, LOW 등으로 나타납니다."
         
 
-        col1.metric("시간 집중도", metrics.get("time_concentration", 0), help=time_concentration_desc)
-        col2.metric("IP 다각화", metrics.get("ip_diversification", 0), help=ip_diversification_desc)
-        col3.metric("사용자 이상행동", metrics.get("user_anomaly", 0), help=user_anomaly_desc)
-        col4.metric("파일 민감도", metrics.get("file_sensitivity", 0), help=file_sensitivity_desc)
+        col1.metric("시간 집중도",f"{metrics.get('time_concentration', 0):.2f}",help=time_concentration_desc)
+        col2.metric("IP 다각화", f"{metrics.get('ip_diversification', 0):.2f}", help=ip_diversification_desc)
+        col3.metric("사용자 이상행동", f"{metrics.get('user_anomaly', 0):.2f}", help=user_anomaly_desc)
+        col4.metric("파일 민감도", f"{metrics.get('file_sensitivity', 0):.2f}", help=file_sensitivity_desc)
         #col5.metric("우선순위", result1.get("priority_level", "").upper(), help=priority_level_desc)
 
         # 세부 지표 막대 차트
@@ -179,8 +179,7 @@ if json1 and json2:
             col1, col2, col3 = st.columns(3)
             with col1:
                 st.metric("버스트 공격 탐지", "✅" if t.get("burst_attack_detected") else "❌")
-                st.metric("총 공격 지속시간(초)", t.get("total_duration"))
-
+                st.metric("총 공격 지속시간", f"{t.get('total_duration')}초")
                 st.metric("버스트 강도", f"{t.get('burst_intensity', 0):.2f}")
                 st.metric("이벤트 밀도", f"{round(t.get('event_density', 0), 3):.3f}","(이벤트/초)")
             with col2: 
@@ -205,8 +204,8 @@ if json1 and json2:
             ip = da.get("ip_analysis", {})
             col1, col2 = st.columns(2)
             with col1:
-                st.metric("외부→내부 이동 ", f"{ip.get("external_to_internal")}회")
-                st.metric("내부→내부 이동 ", f"{ip.get("internal_to_internal")}회")
+                st.metric("외부→내부 이동 ", f"{ip.get('external_to_internal')}회") 
+                st.metric("내부→내부 이동 ", f"{ip.get('internal_to_internal')}회")
                 st.metric("측면 이동 감지", "✅" if ip.get("lateral_movement_detected") else "❌")
                 st.metric("네트워크 침투 깊이", f"{ip.get('network_penetration_depth')} 단계")
             with col2:
