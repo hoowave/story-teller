@@ -1,12 +1,26 @@
-.venv
+# 가상환경 무시
+.venv/
+
+# 컴파일/캐시 파일
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+
+# 데이터/로그/민감 파일만 무시
 *.db
 *.sqlite3
 *.log
 *.csv
 *.json
 *.txt
-backend/
+*.joblib
+*.cbm
+
+# 환경변수 파일
+backend/.env
+backend/*.env
+
+# 예외: 폴더 구조와 코드 파일은 Git에 포함
+!backend/**/*.py
+!backend/**/__init__.py

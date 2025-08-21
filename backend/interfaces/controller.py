@@ -1,7 +1,5 @@
-from fastapi import APIRouter, Depends
-from fastapi.responses import StreamingResponse
-
-from interfaces.dto.request_dto import RequestDto
+from fastapi import APIRouter, Depends, File, UploadFile
+from typing import List
 from service.service import Service
 
 router = APIRouter()
@@ -15,10 +13,11 @@ def get_service():
 def index():
     return "Welcome to the story-teller API!"
 
-# 테스트용 API
-@router.get("/api/test")
-def graph(
+# 파일 업로드 API
+@router.post("/upload")
+def upload_files(
+    files: List[UploadFile] = File(...),
     service: Service = Depends(get_service)
 ):
-    print("Test API called")
-    return service.test()
+    response = service.upload(files)
+    return response
