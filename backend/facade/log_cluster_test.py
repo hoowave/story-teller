@@ -15,7 +15,7 @@ class Clustering:
     def analyze(self):
         events: List[SecurityEvent]
         if len(sys.argv) > 1:
-            log_path = os.path.join(os.path.dirname(__file__), "data", "processor_output.json")
+            log_path = os.path.join(os.path.dirname(__file__), "data", "scenario1_only_1000_strict.json")
             print(f"[입력] {log_path} 에서 로그 로드")
             events = self.__loader.load_from_json_file(log_path)
         else:

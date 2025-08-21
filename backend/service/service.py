@@ -26,7 +26,6 @@ class Service:
         ## 첫번째 방법으로 하고자 하시면 아래를 주석처리하고 self.__log_cluster.analyze() 를 사용해주세요.
         
         #self.__log_cluster.analyze()
-        # 아래 두번째 클러스터링은 에러 발생!
         self.__clustering.analyze()
 
         ## Step 4 클러스터링 결과를 기반으로 위험도 평가

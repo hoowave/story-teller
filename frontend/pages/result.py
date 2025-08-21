@@ -227,15 +227,15 @@ if json1 and json2:
                     st.markdown(f"- **{indicator}**")
 
                 st.subheader("민감 파일 접근 내역")
-                file_analysis = da.get("file_analysis", [])
+                file_analysis = da.get("file_analysis", {})
                 if file_analysis:
+                    file_analysis_list = file_analysis if isinstance(file_analysis, list) else [file_analysis]
                     high_risk_records = []
-                    for file_info in file_analysis:
-                        for f in file_info["high_risk_files"]:
+                    for file_info in file_analysis_list:
+                        for f in file_info.get("high_risk_files", []):
                             high_risk_records.append({
                                 "파일": f["file"],
                                 "사용자": f["user"],
-                                "접근 시각": f["timestamp"],
                                 "민감도": f["sensitivity"],
                                 "파일 유출 위험 점수": file_info["exfiltration_risk_score"]
                             })

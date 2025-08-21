@@ -9,7 +9,7 @@ class RiskAgent:
 
     def run(self):
         project_root = Path(__file__).parent.parent
-        input_path = project_root / "facade" / "data" / "processor_output.json"
+        input_path = project_root / "facade" / "data" / "scenario1_only_1000_strict.json"
         out_path = project_root / "facade" / "data" / "risk_output.json"
 
         events = load_preprocessed_events(input_path)
