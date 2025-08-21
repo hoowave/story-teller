@@ -180,6 +180,7 @@ if json1 and json2:
             with col1:
                 st.metric("버스트 공격 탐지", "✅" if t.get("burst_attack_detected") else "❌")
                 st.metric("총 공격 지속시간(초)", t.get("total_duration"))
+
                 st.metric("버스트 강도", f"{t.get('burst_intensity', 0):.2f}")
                 st.metric("이벤트 밀도", f"{round(t.get('event_density', 0), 3):.3f}","(이벤트/초)")
             with col2: 
