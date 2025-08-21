@@ -2,9 +2,9 @@
 import json
 import sys
 from typing import List, Dict, Any
-from facade.log_clustering.models import SecurityEvent
-from facade.log_clustering.cluster_analyzer import ClusterAnalyzer
-from facade.log_clustering.data_loader import DataLoader
+from facade.clustering.models import SecurityEvent
+from facade.clustering.cluster_analyzer import ClusterAnalyzer
+from facade.clustering.data_loader import DataLoader
 
 def main():
     print("=== 보안 로그 클러스터링 분석 시스템 ===\n")

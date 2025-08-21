@@ -24,9 +24,9 @@ class Service:
         ## 이 부분에서 클러스터링을 두번째 방법으로 진행합니다.
         ## 첫번째 방법으로 하고자 하시면 아래를 주석처리하고 self.__log_cluster.analyze() 를 사용해주세요.
         
-        self.__log_cluster.analyze()
+        #self.__log_cluster.analyze()
         # 아래 두번째 클러스터링은 에러 발생!
-        # self.__clustering.analyze()
+        self.__clustering.analyze()
 
         ## Step 4 클러스터링 결과를 기반으로 위험도 평가
         self.__risk_agent.run()
@@ -41,7 +41,7 @@ class Service:
     def getResponseData(self):
         """현재 세션의 JSON 데이터를 반환"""
         project_root = Path(__file__).parent.parent
-        json1_path = project_root / "facade" / "data" / "cluster_output_1.json"
+        json1_path = project_root / "facade" / "data" / "cluster_output_2.json"
         json2_path = project_root / "facade" / "data" / "story_output.json"
 
         with open(json1_path, "r", encoding="utf-8") as f:

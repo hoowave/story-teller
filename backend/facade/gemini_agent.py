@@ -58,7 +58,7 @@ class GeminiAgent:
         # 기본 경로 및 파라미터 직접 지정
         project_root = Path(__file__).parent.parent
         default_risk = project_root / "facade" / "data" / "risk_output.json"
-        default_cluster = project_root / "facade" / "data" / "cluster_output_1.json"
+        default_cluster = project_root / "facade" / "data" / "cluster_output_2.json"
         default_events = ""  # 없으면 빈 문자열
         default_out = project_root / "facade" / "data" / "story_output.json"
         default_backend = "gemini"

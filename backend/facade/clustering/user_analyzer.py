@@ -2,8 +2,8 @@
 from typing import List, Dict, Any
 from collections import defaultdict
 from datetime import timedelta
-from facade.log_clustering.models import SecurityEvent, EventType
-from facade.log_clustering.config import DEFAULT_CONFIG
+from facade.clustering.models import SecurityEvent, EventType
+from facade.clustering.config import DEFAULT_CONFIG
 
 class UserAnalyzer:
     """사용자 행동 패턴 분석기(인증 특화 신호 포함)"""

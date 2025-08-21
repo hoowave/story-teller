@@ -1,7 +1,7 @@
 # file_analyzer.py
 from typing import List, Dict, Any, Set, Tuple
-from facade.log_clustering.models import SecurityEvent, EventType
-from facade.log_clustering.config import DEFAULT_CONFIG
+from facade.clustering.models import SecurityEvent, EventType
+from facade.clustering.config import DEFAULT_CONFIG
 
 class FileAnalyzer:
     """파일/DB/유출 리스크 분석"""
