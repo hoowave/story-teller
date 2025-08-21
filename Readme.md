@@ -56,10 +56,16 @@
    - Streamlit에서 공격 시나리오, 위험도, 세부 지표, 이벤트 테이블 시각화
 
 ---
-
-## 4. 프론트엔드 (Streamlit) 실행
-**(1) 설치 및 실행**
+## 4. 필수 패키지 설치
+**패키지 설치**
+```bash
+pip install streamlit requests pandas plotly altair fastapi pydantic python-dateutil python-multipart "uvicorn[standard]" google-generativeai
 ```
+---
+
+## 5. 프론트엔드 (Streamlit) 실행
+**설치 및 실행**
+```bash
 cd frontend
 streamlit run main.py
 ```
@@ -67,9 +73,9 @@ streamlit run main.py
 
 ---
 
-## 5. 백엔드 (FastAPI) 실행
-**(1) 설치 및 실행**
-```
+## 6. 백엔드 (FastAPI) 실행
+**설치 및 실행**
+```bash
 cd backend
 uvicorn main:app --reload
 ```
