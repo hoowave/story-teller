@@ -25,12 +25,13 @@ story-teller/
 │       │
 │       ├── anomaly/                              # 이상 탐지 모듈
 │       │   ├── realtime_detector.py              # 실시간 이상 탐지 로직
-│       │   ├── realtime_cluster_engine.py        # 새로 추가: 실시간 클러스터링 엔진
+│       │   ├── realtime_cluster_engine.py        # 실시간 클러스터링 엔진
 │       │   └── router.py                         # 이상 탐지 API 라우터
 │       │
 │       └── preprocessor/                         # 로그 전처리 모듈
 │           ├── __init__.py                       # 패키지 초기화
 │           ├── main.py                           # 전처리 모듈 실행 진입점
+│           ├── old_main.py                       # 이전 버전 main.py
 │           ├── api.py                            # /ingest 엔드포인트 라우터
 │           ├── extractors.py                     # 엔티티 추출 및 힌트 추론
 │           ├── parsers.py                        # 로그 형식 파서 (CSV, 텍스트)
@@ -55,6 +56,10 @@ story-teller/
 │
 ├── frontend/                # 프론트엔드 애플리케이션
 │   └── main.py              # 프론트엔드 진입점 (Streamlit)
+│
+├── test_sample_output/       # 테스트 출력 결과 저장 디렉토리
+│   ├── auth_log_out          # 인증 로그 테스트 출력
+│   └── auth_log_out2         # 인증 로그 테스트 출력 2
 │
 ├── .gitignore               # Git 무시 파일 설정
 └── Readme.md                # 프로젝트 설명 문서
