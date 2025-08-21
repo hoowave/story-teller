@@ -3,7 +3,7 @@
 Preprocessor Runner (no server)
 - 입력: ZIP / 폴더 / 단일 파일(.csv/.log/.txt)
 - 동작: api.py와 동일한 파이프라인으로 파싱/엔티티 추출/힌트 산출
-- 출력: 콘솔 요약(입력/출력) + 선택적 JSON 저장(ingest_id/format/count/sample/[events])
+- 출력: 콘솔 요약(입력/출력) + 선택적 JSON 저장(항상 sample_log2 포맷)
 """
 
 import os, io, glob, re, json, zipfile, argparse, uuid
@@ -21,6 +21,72 @@ from .api import _rows_from_file, _ext, ALLOWED_EXTS
 # ---------------------------
 def _safe(name: str) -> str:
     return re.sub(r"[^-\w_.]+", "_", name)
+
+def _raw_ts(ts: Optional[str]) -> str:
+    """ISO8601에서 tz를 제거한 'YYYY-MM-DDTHH:MM:SS' 로 반환."""
+    if not ts:
+        return ""
+    try:
+        if ts.endswith("Z"):
+            dt = datetime.fromisoformat(ts[:-1] + "+00:00")
+        else:
+            dt = datetime.fromisoformat(ts)
+        return dt.replace(tzinfo=None).isoformat(timespec="seconds")
+    except Exception:
+        return ts
+
+def _csvish_raw(ts: Optional[str], src_ip: Optional[str], dst_ip: Optional[str], msg: Optional[str]) -> str:
+    """샘플처럼 콤마로 잇는 raw 문자열: ts,src_ip,dst_ip,msg (ts는 tz 제거본)"""
+    def nz(x): return "" if x is None else str(x)
+    return f"{nz(_raw_ts(ts))},{nz(src_ip)},{nz(dst_ip)},{nz(msg)}"
+
+def _fill_src_dst_from_entities(ev_dict: Dict[str, Any]) -> None:
+    """src_ip/dst_ip가 비었고 entities.ips가 정확히 2개면 순서대로 채움."""
+    src, dst = ev_dict.get("src_ip"), ev_dict.get("dst_ip")
+    ents = (ev_dict.get("entities") or {})
+    ips = ents.get("ips") or []
+    if (not src) and (not dst) and len(ips) == 2:
+        ev_dict["src_ip"], ev_dict["dst_ip"] = ips[0], ips[1]
+
+def _alias_event_type(et: Optional[str]) -> Optional[str]:
+    """내부 event_type_hint 값을 샘플 표기와 맞추기 위한 alias."""
+    if et is None: return None
+    alias = {
+        "file_access": "file_accessed",   # 샘플과 동일
+    }
+    return alias.get(et, et)
+
+def _to_sample_log2_event(e: Event) -> Dict[str, Any]:
+    """Event → sample log2.txt 스타일 이벤트로 변환."""
+    d = e.model_dump()
+    # 1) event_type alias
+    d["event_type_hint"] = _alias_event_type(d.get("event_type_hint"))
+    # 2) source_type 보정: 인증 이벤트는 auth로 통일
+    if d.get("event_type_hint") == "authentication":
+        d["source_type"] = "auth"
+    # 3) src/dst 비어있으면 entities.ips에서 유추(정확히 2개일 때)
+    _fill_src_dst_from_entities(d)
+    # 4) raw를 콤마 구분 문자열로 재구성
+    d["raw"] = _csvish_raw(d.get("ts"), d.get("src_ip"), d.get("dst_ip"), d.get("msg"))
+    # 5) meta 비우기 (샘플과 동일)
+    d["meta"] = {}
+    # 6) parsing_confidence 고정
+    d["parsing_confidence"] = 0.8
+    return {
+        "event_id": d.get("event_id"),
+        "ingest_id": d.get("ingest_id"),
+        "ts": d.get("ts"),
+        "source_type": d.get("source_type"),
+        "src_ip": d.get("src_ip"),
+        "dst_ip": d.get("dst_ip"),
+        "msg": d.get("msg"),
+        "event_type_hint": d.get("event_type_hint"),
+        "severity_hint": d.get("severity_hint"),
+        "entities": d.get("entities") or {},
+        "raw": d.get("raw"),
+        "meta": d.get("meta"),
+        "parsing_confidence": d.get("parsing_confidence"),
+    }
 
 def _iter_inputs(input_path: str) -> Iterable[Tuple[str, bytes]]:
     """
@@ -181,32 +247,11 @@ def run_preprocessor(input_path: str, full: bool = False, save_json: Optional[st
     _pretty_sample(all_events, max_sample=sample_limit)
 
     # ---------------------------
-    # JSON 응답 형태 (API 시뮬)
+    # JSON 응답 형태 (항상 sample_log2 고정)
     # ---------------------------
     payload: Dict[str, Any] = {
-        "ingest_id": ingest_id,
-        "format": "+".join(sorted(formats)) if formats else "unknown",
-        "count": len(all_events),
-        "sample": [e.model_dump() for e in all_events[:sample_limit]],
-        "summary": {
-            "by_event_type": dict(by_type),
-            "by_severity": dict(by_sev),
-            "by_source_type": dict(by_src),
-            "top_ips": ips.most_common(10),
-            "top_users": users.most_common(10),
-            "time_range": {
-                "min": t_min.isoformat() if t_min else None,
-                "max": t_max.isoformat() if t_max else None,
-                "duration_seconds": dur,
-            },
-            "files_scanned": {
-                "total": files_seen,
-                "by_ext": dict(file_counts),
-            },
-        },
+        "events": [_to_sample_log2_event(e) for e in all_events]
     }
-    if full:
-        payload["events"] = [e.model_dump() for e in all_events]
 
     print("\n=== [JSON 응답 형태] ===")
     print(json.dumps(payload, indent=2, ensure_ascii=False))
@@ -233,7 +278,7 @@ def run_preprocessor(input_path: str, full: bool = False, save_json: Optional[st
 def main():
     ap = argparse.ArgumentParser(description="Preprocessor main (no server)")
     ap.add_argument("--input", required=True, help="ZIP / 폴더 / 단일 파일(.csv/.log/.txt)")
-    ap.add_argument("--full", action="store_true", help="JSON에 events 전체 포함")
+    ap.add_argument("--full", action="store_true", help="(무시됨) sample_log2 모드에서는 의미 없음")
     ap.add_argument("--save-json", help="결과 JSON 저장 경로(파일 or 디렉터리)")
     ap.add_argument("--sample", type=int, default=3, help="콘솔 샘플 출력 개수 (기본 3)")
     args = ap.parse_args()
